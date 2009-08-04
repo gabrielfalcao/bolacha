@@ -17,10 +17,24 @@
 # License along with this program; if not, write to the
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
-
+from urllib import urlencode
 from httplib2 import Http as HTTPClass
 
+HTTP_METHODS = (
+    'OPTIONS',
+    'GET',
+    'HEAD',
+    'POST',
+    'PUT',
+    'DELETE',
+    'TRACE',
+    'CONNECT',
+)
+
+RFC_LOCATION = 'Take a look at http://www.w3.org/Protocols/rfc2616/' \
+               'rfc2616-sec9.html to see valid method definitions'
 class Bolacha(object):
+    headers = None
     def __init__(self, http=None, persistent=True, **kw):
         if http is not None and not isinstance(http, type) and not callable(http):
             raise TypeError, 'Bolacha takes a class or callable as parameter, ' \
@@ -32,7 +46,39 @@ class Bolacha(object):
             self.http = HTTPClass(**kw)
 
         self.persistent = persistent
+        self.headers = {}
 
-    def post(self):
-        pass
+    def request(self, url, method, body=None, headers=None):
+        if not isinstance(url, basestring):
+            raise TypeError, 'Bolacha.request, parameter url must be ' \
+                  'a string. Got %s' % repr(url)
 
+        if not isinstance(method, basestring):
+            raise TypeError, 'Bolacha.request, parameter method must be ' \
+                  'a string. Got %s' % repr(method)
+
+        if method not in HTTP_METHODS:
+            raise TypeError, 'Bolacha.request, parameter method must be ' \
+                  'a valid HTTP method. Got %s. %s' % (method,
+                                                        RFC_LOCATION)
+
+
+        if body is None:
+            body = ''
+
+        if isinstance(body, dict):
+            rbody = urlencode(body)
+        else:
+            rbody = unicode(body)
+
+        if headers is None:
+            headers = {}
+
+        if not isinstance(headers, dict):
+            raise TypeError, 'Bolacha.request, parameter headers must be ' \
+                  'a dict or NoneType. Got %s' % repr(headers)
+
+        rheaders = headers.copy()
+
+        response, content = self.http.request(url, method, rbody, rheaders)
+        return response, content

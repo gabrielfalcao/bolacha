@@ -25,7 +25,7 @@ from utils import assert_raises
 from bolacha import Bolacha
 from httplib2 import Http
 
-def test_bolacha_creation_takes_class():
+def test_creation_takes_class():
     msg = r'Bolacha takes a class or callable as parameter, got %r'
     assert_raises(TypeError,
                   Bolacha, 5,
@@ -34,7 +34,7 @@ def test_bolacha_creation_takes_class():
                   Bolacha, 'blabla',
                   exc_pattern=msg % 'blabla')
 
-def test_bolacha_instantiate_class_with_kwargs():
+def test_instantiate_class_with_kwargs():
     mocker = Mox()
 
     klass_mock = mocker.CreateMockAnything()
@@ -44,7 +44,7 @@ def test_bolacha_instantiate_class_with_kwargs():
     Bolacha(klass_mock, cache_path='/some/path', other_param=10)
     mocker.VerifyAll()
 
-def test_bolacha_keeps_http_instance_after_instantiation():
+def test_keeps_http_instance_after_instantiation():
     mocker = Mox()
 
     klass_mock = mocker.CreateMockAnything()
@@ -56,19 +56,122 @@ def test_bolacha_keeps_http_instance_after_instantiation():
     assert_equals(b.http, instance_mock)
     mocker.VerifyAll()
 
-def test_bolacha_uses_httplib2_Http_as_default_http_class():
+def test_uses_httplib2_Http_as_default_http_class():
     b = Bolacha()
     assert isinstance(b.http, Http), 'Bolacha().http should be instance of ' \
            'httplib2.Http, got %s' % repr(b.http)
 
-def test_bolacha_is_persistent_by_default():
+def test_is_persistent_by_default():
     b = Bolacha()
     assert b.persistent is True, 'Bolacha should be persistent by default'
 
-def test_bolacha_can_be_not_persistent():
+def test_can_be_not_persistent():
     b = Bolacha(persistent=False)
     assert b.persistent is False, 'Bolacha should be persistent by default'
 
-def test_bolacha_is_persistent_by_default():
+def test_is_persistent_by_default():
     b = Bolacha()
     assert b.persistent
+
+def test_has_headers_attribute():
+    b = Bolacha()
+    assert hasattr(b, 'headers'), 'Bolacha should be "headers"'
+    assert isinstance(b.headers, dict), \
+           'Bolacha.headers should be a dict, got %s' % repr(b.headers)
+
+def test_headers_are_instance_scoped():
+    b1 = Bolacha()
+    b2 = Bolacha()
+    b1.headers['foo'] = 'foo foo'
+    b2.headers['bar'] = 'bar bar'
+
+    b3 = Bolacha()
+
+    assert_equals(b1.headers, {'foo': 'foo foo'})
+    assert_equals(b2.headers, {'bar': 'bar bar'})
+    assert_equals(b3.headers, {})
+
+def test_request_calls_http_request():
+    mocker = Mox()
+
+    klass_mock = mocker.CreateMockAnything()
+    http_mock = mocker.CreateMockAnything()
+    klass_mock().AndReturn(http_mock)
+
+    response_headers = {}
+    response_body = "should be my html content"
+
+    http_mock.request('http://somewhere.com', 'GET', '', {}). \
+        AndReturn((response_headers, response_body))
+
+    mocker.ReplayAll()
+
+    b = Bolacha(klass_mock)
+    assert_equals(b.request('http://somewhere.com', 'GET'), (response_headers,
+                                                             response_body))
+    mocker.VerifyAll()
+
+def test_request_fails_with_headers_non_dict():
+    b = Bolacha()
+    assert_raises(TypeError, b.request, 'http://somewhere', 'GET', headers=5,
+                  exc_pattern=r'Bolacha.request, parameter headers must be ' \
+                  'a dict or NoneType. Got 5')
+    assert_raises(TypeError, b.request, 'http://somewhere', 'GET', headers='bla',
+                  exc_pattern=r'Bolacha.request, parameter headers must be ' \
+                  'a dict or NoneType. Got \'bla\'')
+
+def test_request_fails_url_non_string():
+    b = Bolacha()
+    assert_raises(TypeError, b.request, None, None,
+                  exc_pattern=r'Bolacha.request, parameter url must be ' \
+                  'a string. Got None')
+    assert_raises(TypeError, b.request, 99, None,
+                  exc_pattern=r'Bolacha.request, parameter url must be ' \
+                  'a string. Got 99')
+
+def test_request_fails_method_non_string():
+    b = Bolacha()
+    assert_raises(TypeError, b.request, 'http://gnu', None,
+                  exc_pattern=r'Bolacha.request, parameter method must be ' \
+                  'a string. Got None')
+    assert_raises(TypeError, b.request, 'http://gnu', 99,
+                  exc_pattern=r'Bolacha.request, parameter method must be ' \
+                  'a string. Got 99')
+
+def test_request_fails_inexistent_method():
+    b = Bolacha()
+    assert_raises(TypeError, b.request, 'http://gnu', 'FOOBAR',
+                  exc_pattern=r'Bolacha.request, parameter method must be ' \
+                  'a valid HTTP method. Got FOOBAR. ' \
+                  'Take a look at http://www.w3.org/Protocols/rfc2616/' \
+                  'rfc2616-sec9.html to see valid method definitions')
+    assert_raises(TypeError, b.request, 'http://gnu', 'GOOSFRABA',
+                  exc_pattern=r'Bolacha.request, parameter method must be ' \
+                  'a valid HTTP method. Got GOOSFRABA. ' \
+                  'Take a look at http://www.w3.org/Protocols/rfc2616/' \
+                  'rfc2616-sec9.html to see valid method definitions')
+
+def test_request_with_body_dict():
+    mocker = Mox()
+
+    klass_mock = mocker.CreateMockAnything()
+    http_mock = mocker.CreateMockAnything()
+    klass_mock().AndReturn(http_mock)
+
+    response_headers = {'header1': 'value of header'}
+    response_body = {'param1': 'value1', 'foo': 'bar'}
+
+    http_mock.request('http://somewhere.com', 'GET',
+                      'foo=bar&param1=value1',
+                      response_headers). \
+        AndReturn((response_headers, response_body))
+
+    mocker.ReplayAll()
+
+    b = Bolacha(klass_mock)
+    got = b.request('http://somewhere.com', 'GET',
+                    response_body,
+                    response_headers)
+    assert_equals(got, (response_headers,
+                        response_body))
+    mocker.VerifyAll()
