@@ -18,8 +18,21 @@
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+from httplib2 import Http as HTTPClass
+
 class Bolacha(object):
-    def __init__(self, http=None):
-        if http is not None and not isinstance(http, type):
-            raise TypeError, 'Bolacha takes a class as parameter, got %s' % repr(http)
+    def __init__(self, http=None, persistent=True, **kw):
+        if http is not None and not isinstance(http, type) and not callable(http):
+            raise TypeError, 'Bolacha takes a class or callable as parameter, ' \
+                  'got %s' % repr(http)
+
+        if http is not None:
+            self.http = http(**kw)
+        else:
+            self.http = HTTPClass(**kw)
+
+        self.persistent = persistent
+
+    def post(self):
+        pass
 
