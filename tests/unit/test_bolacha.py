@@ -175,3 +175,56 @@ def test_request_with_body_dict():
     assert_equals(got, (response_headers,
                         response_body))
     mocker.VerifyAll()
+
+def test_request_with_invalid_body():
+    b = Bolacha()
+    assert_raises(TypeError, b.request, 'http://gnu', 'GET',
+                  body=['a list'],
+                  exc_pattern=r'Bolacha.request, parameter body must be ' \
+                  'a string or dict. Got .\'a list\'.')
+    assert_raises(TypeError, b.request, 'http://gnu', 'GET',
+                  body=5,
+                  exc_pattern=r'Bolacha.request, parameter body must be ' \
+                  'a string or dict. Got 5')
+
+def test_request_keep_sending_last_headers():
+    mocker = Mox()
+
+    http_mock = mocker.CreateMockAnything()
+
+    response_headers1 = {'normal': 5}
+    response_headers2 = {'good': 10}
+    response_headers3 = {'awesome': 20}
+
+    request_headers1 = {}
+    request_headers2 = {'normal': 5}
+    request_headers3 = {'normal': 5, 'good': 10}
+    request_headers4 = {'normal': 5, 'good': 10, 'awesome': 20}
+
+    # 1st request
+    http_mock.request('http://somewhere.com', 'GET',
+                      '', request_headers1). \
+        AndReturn((response_headers1, ''))
+
+    # 2nd request
+    http_mock.request('http://somewhere.com', 'GET',
+                      '', request_headers2). \
+        AndReturn((response_headers2, ''))
+
+    # 3rd request
+    http_mock.request('http://somewhere.com', 'GET',
+                      '', request_headers3). \
+        AndReturn((response_headers3, ''))
+
+    # 4th request
+    http_mock.request('http://somewhere.com', 'GET',
+                      '', request_headers4). \
+        AndReturn(({}, ''))
+
+    mocker.ReplayAll()
+    bol = Bolacha()
+    bol.http = http_mock
+    for x in range(4):
+        bol.request('http://somewhere.com', 'GET')
+
+    mocker.VerifyAll()

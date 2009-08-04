@@ -62,9 +62,12 @@ class Bolacha(object):
                   'a valid HTTP method. Got %s. %s' % (method,
                                                         RFC_LOCATION)
 
-
         if body is None:
             body = ''
+
+        if not isinstance(body, (basestring, dict)):
+            raise TypeError, 'Bolacha.request, parameter body must be ' \
+                  'a string or dict. Got %s.' % (repr(body))
 
         if isinstance(body, dict):
             rbody = urlencode(body)
@@ -78,7 +81,11 @@ class Bolacha(object):
             raise TypeError, 'Bolacha.request, parameter headers must be ' \
                   'a dict or NoneType. Got %s' % repr(headers)
 
-        rheaders = headers.copy()
+        rheaders = self.headers.copy()
+        rheaders.update(headers)
 
         response, content = self.http.request(url, method, rbody, rheaders)
+
+        self.headers.update(response)
+
         return response, content
