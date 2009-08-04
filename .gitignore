@@ -1,0 +1,7 @@
+*.pyc
+.coverage
+build
+.ropeproject
+docs/_build
+Sponge.egg-info
+dist
