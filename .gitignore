@@ -5,3 +5,4 @@ build
 docs/_build
 Sponge.egg-info
 dist
+.coverage
