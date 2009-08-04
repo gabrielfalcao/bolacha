@@ -20,8 +20,8 @@
 
 from bolacha import Bolacha
 
-def test_google():
+def test_gnu():
     b = Bolacha()
-    head, body = b.request('http://www.google.com', 'GET')
+    head, body = b.request('http://gnu.org', 'GET')
 
-    assert 'google' in body.lower()
+    assert 'gnu' in body.lower()
