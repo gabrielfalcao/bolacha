@@ -63,9 +63,6 @@ if __name__ == '__main__':
     c = {
         '/': {
             'tools.sessions.on': True,
-            'tools.sessions.storage_type': 'file',
-            'tools.sessions.storage_path': '.',
-            'tools.sessions.timeout': 10,
         }
     }
     cherrypy.quickstart(TestController(), '/', config=c)
