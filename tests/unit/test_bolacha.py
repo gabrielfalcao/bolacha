@@ -268,3 +268,47 @@ def test_request_handle_cookies():
         bol.request('http://somewhere.com', 'GET')
 
     mocker.VerifyAll()
+
+def test_request_when_persistent():
+    mocker = Mox()
+
+    klass_mock = mocker.CreateMockAnything()
+    http_mock = mocker.CreateMockAnything()
+    klass_mock().AndReturn(http_mock)
+
+    response_headers = {'connection': 'close'}
+
+    http_mock.request('http://somewhere.com', 'GET', '', {}). \
+        AndReturn((response_headers, ''))
+
+    http_mock.request('http://somewhere.com', 'GET', '', {}).AndReturn(({}, ''))
+
+    mocker.ReplayAll()
+
+    b = Bolacha(klass_mock, persistent=True)
+    b.request('http://somewhere.com', 'GET')
+    b.request('http://somewhere.com', 'GET')
+    mocker.VerifyAll()
+
+def test_request_when_not_persistent():
+    mocker = Mox()
+
+    klass_mock = mocker.CreateMockAnything()
+    http_mock = mocker.CreateMockAnything()
+    klass_mock().AndReturn(http_mock)
+
+    response_headers = {'connection': 'close', 'set-cookie': 'blabla'}
+    request_headers = {'connection': 'close'}
+
+    http_mock.request('http://somewhere.com', 'GET', '', {}). \
+        AndReturn((response_headers, ''))
+
+    http_mock.request('http://somewhere.com', 'GET', '', request_headers). \
+        AndReturn((response_headers, ''))
+
+    mocker.ReplayAll()
+
+    b = Bolacha(klass_mock, persistent=False)
+    b.request('http://somewhere.com', 'GET')
+    b.request('http://somewhere.com', 'GET')
+    mocker.VerifyAll()
