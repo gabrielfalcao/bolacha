@@ -5,7 +5,7 @@ clean:
 	@find . -name '*.pyc' -delete
 	@echo "Cleaning up build files ..."
 	@rm -rf build
-test:
+test: run_server
 	@echo "Running all tests ..."
 	@nosetests -s --with-coverage --cover-package=bolacha tests/{unit,functional}
 	@echo "Done."
@@ -18,6 +18,7 @@ unit:
 run_server: kill_server
 	@echo "Running builtin HTTP server ..."
 	@python tests/functional/bolacha_server.py 2&>1 > log.txt &
+	@sleep 2
 
 functional: run_server
 	@echo "Running functional tests ..."

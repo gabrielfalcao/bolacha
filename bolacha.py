@@ -69,10 +69,12 @@ class Bolacha(object):
             raise TypeError, 'Bolacha.request, parameter body must be ' \
                   'a string or dict. Got %s.' % (repr(body))
 
+        is_urlencoded = False
         if isinstance(body, dict):
             rbody = urlencode(body)
+            is_urlencoded = True
         else:
-            rbody = unicode(body)
+            rbody = body
 
         if headers is None:
             headers = {}
@@ -94,6 +96,9 @@ class Bolacha(object):
         if self.persistent:
             if 'connection' in rheaders and rheaders['connection'] == 'close':
                 del rheaders['connection']
+
+        if is_urlencoded and not 'Content-type' in rheaders:
+            rheaders['Content-type'] = 'application/x-www-form-urlencoded'
 
         response, content = self.http.request(url, method, rbody, rheaders)
 

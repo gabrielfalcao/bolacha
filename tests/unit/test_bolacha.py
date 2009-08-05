@@ -25,6 +25,12 @@ from utils import assert_raises
 from bolacha import Bolacha
 from httplib2 import Http
 
+base_header = {'Content-type': 'application/x-www-form-urlencoded'}
+def prepare_header(h):
+    z = h.copy()
+    z.update(base_header)
+    return z
+
 def test_creation_takes_class():
     msg = r'Bolacha takes a class or callable as parameter, got %r'
     assert_raises(TypeError,
@@ -163,7 +169,7 @@ def test_request_with_body_dict():
 
     http_mock.request('http://somewhere.com', 'GET',
                       'foo=bar&param1=value1',
-                      response_headers). \
+                      prepare_header(response_headers)). \
         AndReturn((response_headers, response_body))
 
     mocker.ReplayAll()
@@ -171,7 +177,7 @@ def test_request_with_body_dict():
     b = Bolacha(klass_mock)
     got = b.request('http://somewhere.com', 'GET',
                     response_body,
-                    response_headers)
+                    prepare_header(response_headers))
     assert_equals(got, (response_headers,
                         response_body))
     mocker.VerifyAll()
@@ -312,3 +318,40 @@ def test_request_when_not_persistent():
     b.request('http://somewhere.com', 'GET')
     b.request('http://somewhere.com', 'GET')
     mocker.VerifyAll()
+
+def test_set_content_type_urlencoded_when_body_dict_and_none_was_given():
+    mocker = Mox()
+
+    klass_mock = mocker.CreateMockAnything()
+    http_mock = mocker.CreateMockAnything()
+    klass_mock().AndReturn(http_mock)
+
+    request_headers = {'Content-type': 'application/x-www-form-urlencoded'}
+
+    http_mock.request('http://somewhere.com', 'GET', '', request_headers). \
+        AndReturn(({}, ''))
+
+    mocker.ReplayAll()
+
+    b = Bolacha(klass_mock)
+    b.request('http://somewhere.com', 'GET', body={})
+    mocker.VerifyAll()
+
+def test_when_body_dict_and_content_type_is_specified():
+    mocker = Mox()
+
+    klass_mock = mocker.CreateMockAnything()
+    http_mock = mocker.CreateMockAnything()
+    klass_mock().AndReturn(http_mock)
+
+    request_headers = {'Content-type': 'text/plain'}
+
+    http_mock.request('http://somewhere.com', 'GET', '', request_headers). \
+        AndReturn(({}, ''))
+
+    mocker.ReplayAll()
+
+    b = Bolacha(klass_mock)
+    b.request('http://somewhere.com', 'GET', body={}, headers=request_headers)
+    mocker.VerifyAll()
+

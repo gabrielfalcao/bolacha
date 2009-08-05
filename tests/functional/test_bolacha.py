@@ -26,9 +26,10 @@ def test_get():
     head, body = b.request('http://localhost:5050/', 'GET')
     assert_equals(body, 'You are not authenticated!')
 
-def test_post():
+def test_post_with_login():
     b = Bolacha()
     head, body = b.request('http://localhost:5050/', 'POST',
                            body={'username': 'foo',
                                  'password': 'bar'})
 
+    assert_equals(body, 'Welcome to the website!')

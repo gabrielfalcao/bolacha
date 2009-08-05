@@ -22,7 +22,10 @@ import cherrypy
 
 class TestController:
     @cherrypy.expose
-    def index(self, username=None, password=None):
+    def index(self, *args, **kw):
+        username = cherrypy.request.params.get('username')
+        password = cherrypy.request.params.get('password')
+
         if username == 'foo' and password == 'bar':
             cherrypy.session['is_authenticated'] = True
 
