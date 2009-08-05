@@ -228,3 +228,43 @@ def test_request_keep_sending_last_headers():
         bol.request('http://somewhere.com', 'GET')
 
     mocker.VerifyAll()
+
+def test_request_handle_cookies():
+    mocker = Mox()
+
+    http_mock = mocker.CreateMockAnything()
+    request_headers1 = {}
+    response_headers1 = {'set-cookie': 'Will log in'}
+
+    request_headers2 = {'Cookie': 'Will log in'}
+    response_headers2 = {'set-cookie': 'Already logged as root'}
+
+    request_headers3 = {'Cookie': 'Already logged as root'}
+    response_headers3 = {'set-cookie': 'Just logged out'}
+
+    request_headers4 = {'Cookie': 'Just logged out'}
+    response_headers4 = {'set-cookie': 'Will log in'}
+
+    http_mock.request('http://somewhere.com', 'GET',
+                      '', request_headers1). \
+        AndReturn((response_headers1, ''))
+
+    http_mock.request('http://somewhere.com', 'GET',
+                      '', request_headers2). \
+        AndReturn((response_headers2, ''))
+
+    http_mock.request('http://somewhere.com', 'GET',
+                      '', request_headers3). \
+        AndReturn((response_headers3, ''))
+
+    http_mock.request('http://somewhere.com', 'GET',
+                      '', request_headers4). \
+        AndReturn((response_headers4, ''))
+
+    mocker.ReplayAll()
+    bol = Bolacha()
+    bol.http = http_mock
+    for x in range(4):
+        bol.request('http://somewhere.com', 'GET')
+
+    mocker.VerifyAll()

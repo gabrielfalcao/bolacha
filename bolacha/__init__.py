@@ -84,6 +84,12 @@ class Bolacha(object):
         rheaders = self.headers.copy()
         rheaders.update(headers)
 
+        if 'set-cookie' in self.headers:
+            rheaders['Cookie'] = self.headers['set-cookie']
+
+        if 'set-cookie' in rheaders:
+            del rheaders['set-cookie']
+
         response, content = self.http.request(url, method, rbody, rheaders)
 
         self.headers.update(response)
