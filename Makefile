@@ -15,9 +15,18 @@ unit:
 	@nosetests -s --with-coverage --cover-package=bolacha tests/unit
 	@echo "Done."
 
-functional:
+run_server: kill_server
+	@echo "Running builtin HTTP server ..."
+	@python tests/functional/bolacha_server.py 2&>1 > log.txt &
+
+functional: run_server
 	@echo "Running functional tests ..."
 	@nosetests -s --with-coverage --cover-package=bolacha tests/functional
+	@make kill_server
+
+kill_server:
+	@echo "Shutting down builtin HTTP server ..."
+	@-ps aux | egrep 'bolacha_server' | egrep -v grep | awk '{ print $$2 }' | xargs kill -9 2&>1 /dev/null
 	@echo "Done."
 
 build: test

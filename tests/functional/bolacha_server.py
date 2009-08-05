@@ -17,26 +17,28 @@
 # License along with this program; if not, write to the
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
-
 import socket
 import cherrypy
-from threading import Thread
 
 class TestController:
+    @cherrypy.expose
     def index(self, username=None, password=None):
         if username == 'foo' and password == 'bar':
             cherrypy.session['is_authenticated'] = True
 
         if cherrypy.session.get('is_authenticated'):
             return 'Welcome to the website!'
-        else:
-            cherrypy.response.status = 403 # forbidden
-            return 'You are not authenticated!'
 
-class RunServer(Thread):
-    def run(self):
-        cherrypy.config['server.socket_port'] = 5050
-        cherrypy.quickstart(TestController())
+        cherrypy.response.status = 403 # forbidden
+        return 'You are not authenticated!'
+
+    @cherrypy.expose
+    def logout(self):
+        if cherrypy.session.get('is_authenticated'):
+            cherrypy.session['is_authenticated'] = False
+            return 'Logged out successfully!'
+
+        return 'You are not logged in!'
 
 def port_is_free(server, port):
     connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -51,13 +53,20 @@ def port_is_free(server, port):
         else:
             raise e
 
-def run():
+if __name__ == '__main__':
     if not port_is_free('localhost', 5050):
         print 'The port 5050 in localhost is not free, Bolacha ' \
         'functional tests can not proceed'
         raise SystemExit(1)
 
-    klass = Waiter()
-    klass.setDaemon(True)
-    klass.start()
-    return klass
+    cherrypy.config['server.socket_port'] = 5050
+    c = {
+        '/': {
+            'tools.sessions.on': True,
+            'tools.sessions.storage_type': 'file',
+            'tools.sessions.storage_path': '.',
+            'tools.sessions.timeout': 10,
+        }
+    }
+    cherrypy.quickstart(TestController(), '/', config=c)
+
