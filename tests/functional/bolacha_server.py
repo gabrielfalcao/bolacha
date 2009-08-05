@@ -17,8 +17,10 @@
 # License along with this program; if not, write to the
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
+import os
 import socket
 import cherrypy
+import mimetypes
 
 class TestController:
     @cherrypy.expose
@@ -42,6 +44,21 @@ class TestController:
             return 'Logged out successfully!'
 
         return 'You are not logged in!'
+
+    @cherrypy.expose
+    def upload(self, file=None):
+        if not cherrypy.session.get('is_authenticated'):
+            return 'You must log in to upload a file'
+
+        if file:
+            destination = os.tempnam()
+            content = file.file.read()
+            open(destination, 'w').write(content)
+            ttup = mimetypes.guess_type(destination)
+            cherrypy.response.headers['Content-Type'] = ttup[0]
+            return content
+
+        return 'you must upload a field "file".'
 
 def port_is_free(server, port):
     connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
