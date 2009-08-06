@@ -35,12 +35,21 @@ def test_post_with_login():
                                  'password': 'bar'})
 
     assert_equals(body, 'Welcome to the website!')
+    head, body = b.request('http://localhost:5050/', 'GET')
+    assert_equals(body, 'Welcome to the website!')
 
-def test_upload():
+def test_upload_after_login():
     b = Bolacha()
+
+    head, body = b.request('http://localhost:5050/', 'GET')
+    assert_equals(body, 'You are not authenticated!')
+
+    b.request('http://localhost:5050/', 'POST',
+              body={'username': 'foo',
+                    'password': 'bar'})
+
     gpl2 = open(LOCAL_FILE('data', 'gpl-2.0.tex'))
     head, body = b.request('http://localhost:5050/upload', 'POST',
                            body={'file': gpl2})
 
     assert_equals(head['status'], '200')
-    print head

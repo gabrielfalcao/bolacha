@@ -21,6 +21,7 @@ from httplib2 import Http as HTTPClass
 from bolacha.multipart import BOUNDARY
 from bolacha.multipart import encode_multipart
 from bolacha.multipart import urlencode
+from bolacha.multipart import is_file
 
 HTTP_METHODS = (
     'OPTIONS',
@@ -73,7 +74,6 @@ class Bolacha(object):
                   'a string or dict. Got %s.' % (repr(body))
 
         is_urlencoded = False
-        is_file = lambda f: hasattr(f, 'read') and callable(f.read)
 
         body_has_file = isinstance(body, dict) and any([is_file(fobj)
                                                         for fobj in body.values()])
@@ -116,6 +116,7 @@ class Bolacha(object):
 
         response, content = self.http.request(url, method, rbody, rheaders)
 
-        self.headers.update(response)
+        if 'set-cookie' in response:
+            self.headers['set-cookie'] = response['set-cookie']
 
         return response, content

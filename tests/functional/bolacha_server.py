@@ -47,10 +47,8 @@ class TestController:
 
     @cherrypy.expose
     def upload(self, file=None, **kw):
-        # if not cherrypy.session.get('is_authenticated'):
-        #     return 'You must log in to upload a file'
-        print "GOT DATA?"
-        print kw
+        if not cherrypy.session.get('is_authenticated'):
+            return 'You must log in to upload a file'
 
         if file:
             destination = os.tempnam()

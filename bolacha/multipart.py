@@ -26,6 +26,9 @@ from mimetypes import guess_type
 
 BOUNDARY = uuid4().hex
 
+def is_file(obj):
+    return hasattr(obj, 'read') and callable(obj.read)
+
 def to_str(s):
     if not isinstance(s, basestring):
         s = unicode(s)
@@ -36,12 +39,6 @@ def to_str(s):
 def encode_multipart(boundary, data):
     lines = []
 
-    # Not by any means perfect, but good enough for our purposes.
-    is_file = lambda thing: hasattr(thing, "read") and callable(thing.read)
-
-    # Each bit of the multipart form data could be either a form value or a
-    # file, or a *list* of form values and/or files. Remember that HTTP field
-    # names can be duplicated!
     for key, value in data.items():
         if is_file(value):
             lines.extend(encode_file(boundary, key, value))
@@ -63,7 +60,8 @@ def encode_multipart(boundary, data):
     return '\r\n'.join(lines)
 
 def guess_mime(path):
-    return guess_type(path)[0] or 'application/octet-stream'
+    mime, x = guess_type(path)
+    return mime or 'application/octet-stream'
 
 def encode_file(boundary, key, file):
     return [

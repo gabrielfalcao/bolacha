@@ -193,19 +193,19 @@ def test_request_with_invalid_body():
                   exc_pattern=r'Bolacha.request, parameter body must be ' \
                   'a string or dict. Got 5')
 
-def test_request_keep_sending_last_headers():
+def test_request_keep_sending_last_cookies():
     mocker = Mox()
 
     http_mock = mocker.CreateMockAnything()
 
-    response_headers1 = {'normal': 5}
+    response_headers1 = {'set-cookie': 5}
     response_headers2 = {'good': 10}
-    response_headers3 = {'awesome': 20}
+    response_headers3 = {'set-cookie': 20}
 
     request_headers1 = {}
-    request_headers2 = {'normal': 5}
-    request_headers3 = {'normal': 5, 'good': 10}
-    request_headers4 = {'normal': 5, 'good': 10, 'awesome': 20}
+    request_headers2 = {'Cookie': 5}
+    request_headers3 = {'Cookie': 5}
+    request_headers4 = {'Cookie': 20}
 
     # 1st request
     http_mock.request('http://somewhere.com', 'GET',
@@ -304,7 +304,7 @@ def test_request_when_not_persistent():
     klass_mock().AndReturn(http_mock)
 
     response_headers = {'connection': 'close', 'set-cookie': 'blabla'}
-    request_headers = {'connection': 'close'}
+    request_headers = {}
 
     http_mock.request('http://somewhere.com', 'GET', '', {}). \
         AndReturn((response_headers, ''))
