@@ -3,6 +3,8 @@ all: clean test
 clean:
 	@echo "Cleaning up all *.pyc files ..."
 	@find . -name '*.pyc' -delete
+	@echo "Cleaning up all temp files ..."
+	@find . -name '*.tmp' -delete
 	@echo "Cleaning up build files ..."
 	@rm -rf build
 test: run_server
@@ -17,7 +19,7 @@ unit:
 
 run_server: kill_server
 	@echo "Running builtin HTTP server ..."
-	@python tests/functional/bolacha_server.py 2&>1 > log.txt &
+	@python tests/functional/bolacha_server.py 2>&1 > log.txt &
 	@sleep 2
 
 functional: run_server
@@ -27,7 +29,7 @@ functional: run_server
 
 kill_server:
 	@echo "Shutting down builtin HTTP server ..."
-	@-ps aux | egrep 'bolacha_server' | egrep -v grep | awk '{ print $$2 }' | xargs kill -9 2&>1 /dev/null
+	@-ps aux | egrep 'bolacha_server' | egrep -v grep | awk '{ print $$2 }' | xargs kill -9 2>&1 /dev/null
 	@echo "Done."
 
 build: test

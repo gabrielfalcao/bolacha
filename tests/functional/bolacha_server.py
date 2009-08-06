@@ -21,6 +21,7 @@ import os
 import socket
 import cherrypy
 import mimetypes
+from uuid import uuid4
 
 class TestController:
     @cherrypy.expose
@@ -51,11 +52,11 @@ class TestController:
             return 'You must log in to upload a file'
 
         if file:
-            destination = os.tempnam()
+            destination = "%s.tmp" % uuid4().hex
             print "Saving at " + destination
             content = file.file.read()
-            open(destination, 'wb').write(content)
-            ttup = mimetypes.guess_type(destination)
+            open(destination, 'w').write(content)
+            ttup = mimetypes.guess_type(destination, False)
             cherrypy.response.headers['Content-Type'] = ttup[0]
             return content
 

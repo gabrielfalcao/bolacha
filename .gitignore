@@ -6,3 +6,5 @@ docs/_build
 Sponge.egg-info
 dist
 .coverage
+*.tmp
+log.txt
