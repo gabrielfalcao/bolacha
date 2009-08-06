@@ -17,8 +17,10 @@
 # License along with this program; if not, write to the
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
-from urllib import urlencode
 from httplib2 import Http as HTTPClass
+from bolacha.multipart import BOUNDARY
+from bolacha.multipart import encode_multipart
+from bolacha.multipart import urlencode
 
 HTTP_METHODS = (
     'OPTIONS',
@@ -33,6 +35,7 @@ HTTP_METHODS = (
 
 RFC_LOCATION = 'Take a look at http://www.w3.org/Protocols/rfc2616/' \
                'rfc2616-sec9.html to see valid method definitions'
+
 class Bolacha(object):
     headers = None
     def __init__(self, http=None, persistent=True, **kw):
@@ -70,9 +73,17 @@ class Bolacha(object):
                   'a string or dict. Got %s.' % (repr(body))
 
         is_urlencoded = False
+        is_file = lambda f: hasattr(f, 'read') and callable(f.read)
+
+        body_has_file = isinstance(body, dict) and any([is_file(fobj)
+                                                        for fobj in body.values()])
+
         if isinstance(body, dict):
-            rbody = urlencode(body)
-            is_urlencoded = True
+            if body_has_file:
+                rbody = encode_multipart(BOUNDARY, body)
+            else:
+                rbody = urlencode(body)
+                is_urlencoded = True
         else:
             rbody = body
 
@@ -99,6 +110,9 @@ class Bolacha(object):
 
         if is_urlencoded and not 'Content-type' in rheaders:
             rheaders['Content-type'] = 'application/x-www-form-urlencoded'
+        elif body_has_file:
+            rheaders['Content-type'] = 'multipart/form-data; boundary=%s' % BOUNDARY
+            rheaders['content-length'] = '%d' % len(rbody)
 
         response, content = self.http.request(url, method, rbody, rheaders)
 

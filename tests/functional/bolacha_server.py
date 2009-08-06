@@ -46,14 +46,17 @@ class TestController:
         return 'You are not logged in!'
 
     @cherrypy.expose
-    def upload(self, file=None):
-        if not cherrypy.session.get('is_authenticated'):
-            return 'You must log in to upload a file'
+    def upload(self, file=None, **kw):
+        # if not cherrypy.session.get('is_authenticated'):
+        #     return 'You must log in to upload a file'
+        print "GOT DATA?"
+        print kw
 
         if file:
             destination = os.tempnam()
+            print "Saving at " + destination
             content = file.file.read()
-            open(destination, 'w').write(content)
+            open(destination, 'wb').write(content)
             ttup = mimetypes.guess_type(destination)
             cherrypy.response.headers['Content-Type'] = ttup[0]
             return content

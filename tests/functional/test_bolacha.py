@@ -17,9 +17,11 @@
 # License along with this program; if not, write to the
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
-
+from os.path import dirname, abspath, join
 from nose.tools import assert_equals
 from bolacha import Bolacha
+
+LOCAL_FILE = lambda *x: join(abspath(dirname(__file__)), *x)
 
 def test_get():
     b = Bolacha()
@@ -33,3 +35,12 @@ def test_post_with_login():
                                  'password': 'bar'})
 
     assert_equals(body, 'Welcome to the website!')
+
+def test_upload():
+    b = Bolacha()
+    gpl2 = open(LOCAL_FILE('data', 'gpl-2.0.tex'))
+    head, body = b.request('http://localhost:5050/upload', 'POST',
+                           body={'file': gpl2})
+
+    assert_equals(head['status'], '200')
+    print head
