@@ -7,10 +7,12 @@ clean:
 	@find . -name '*.tmp' -delete
 	@echo "Cleaning up build files ..."
 	@rm -rf build
+
 test: run_server
 	@echo "Running all tests ..."
 	@nosetests -s --with-coverage --cover-package=bolacha tests/{unit,functional}
 	@echo "Done."
+	@make clean
 
 unit:
 	@echo "Running unit tests ..."
@@ -25,6 +27,7 @@ run_server: kill_server
 functional: run_server
 	@echo "Running functional tests ..."
 	@nosetests -s --with-coverage --cover-package=bolacha tests/functional
+	@make clean
 	@make kill_server
 
 kill_server:
