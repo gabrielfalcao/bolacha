@@ -24,7 +24,7 @@ from bolacha.multipart import urlencode
 from bolacha.multipart import is_file
 
 __version__ = '0.1'
-__release__ = 'Maizena'
+__release__ = 'Maisena'
 
 HTTP_METHODS = (
     'OPTIONS',
