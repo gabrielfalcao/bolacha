@@ -18,6 +18,9 @@
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+# some parts of the code below were took from Django Web Framework test client:
+# http://code.djangoproject.com/browser/django/tags/releases/1.1/django/test/client.py
+
 from uuid import uuid4
 from urllib import quote_plus, urlencode
 from glob import glob
