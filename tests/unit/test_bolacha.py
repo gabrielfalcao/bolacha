@@ -22,7 +22,7 @@ from mox import Mox
 from nose.tools import assert_equals
 from utils import assert_raises
 
-from bolacha import Bolacha
+from bolacha import Bolacha, BOUNDARY
 from httplib2 import Http
 
 base_header = {'Content-type': 'application/x-www-form-urlencoded'}
@@ -304,7 +304,7 @@ def test_request_when_not_persistent():
     klass_mock().AndReturn(http_mock)
 
     response_headers = {'connection': 'close', 'set-cookie': 'blabla'}
-    request_headers = {}
+    request_headers = {'connection': 'close'}
 
     http_mock.request('http://somewhere.com', 'GET', '', {}). \
         AndReturn((response_headers, ''))
@@ -353,5 +353,108 @@ def test_when_body_dict_and_content_type_is_specified():
 
     b = Bolacha(klass_mock)
     b.request('http://somewhere.com', 'GET', body={}, headers=request_headers)
+    mocker.VerifyAll()
+
+def test_post_shortcut():
+    mocker = Mox()
+
+    b = Bolacha()
+    b.request = mocker.CreateMockAnything()
+
+    b.request('host', 'POST', body={'name': 'foo', 'age': 30}, headers=None)
+    mocker.ReplayAll()
+
+    b.post('host', {'name': 'foo', 'age': 30})
+
+    mocker.VerifyAll()
+
+def test_get_shortcut():
+    mocker = Mox()
+
+    b = Bolacha()
+    b.request = mocker.CreateMockAnything()
+
+    b.request('host', 'GET', body={'name': 'foo', 'age': 30}, headers=None)
+    mocker.ReplayAll()
+
+    b.get('host', {'name': 'foo', 'age': 30})
+
+    mocker.VerifyAll()
+
+def test_put_shortcut():
+    mocker = Mox()
+
+    b = Bolacha()
+    b.request = mocker.CreateMockAnything()
+
+    b.request('host', 'PUT', body={'name': 'foo', 'age': 30}, headers=None)
+    mocker.ReplayAll()
+
+    b.put('host', {'name': 'foo', 'age': 30})
+
+    mocker.VerifyAll()
+
+def test_delete_shortcut():
+    mocker = Mox()
+
+    b = Bolacha()
+    b.request = mocker.CreateMockAnything()
+
+    b.request('host', 'DELETE', body={'name': 'foo', 'age': 30}, headers=None)
+    mocker.ReplayAll()
+
+    b.delete('host', {'name': 'foo', 'age': 30})
+
+    mocker.VerifyAll()
+
+def test_head_shortcut():
+    mocker = Mox()
+
+    b = Bolacha()
+    b.request = mocker.CreateMockAnything()
+
+    b.request('host', 'HEAD', body={'name': 'foo', 'age': 30}, headers=None)
+    mocker.ReplayAll()
+
+    b.head('host', {'name': 'foo', 'age': 30})
+
+    mocker.VerifyAll()
+
+def test_request_with_file_will_upload_multipart():
+    mocker = Mox()
+
+    klass_mock = mocker.CreateMockAnything()
+    http_mock = mocker.CreateMockAnything()
+    klass_mock().AndReturn(http_mock)
+
+    class FileStub(object):
+        name = '/path/to/file'
+        def read(self):
+            return 'FileStubContent'
+
+    request_headers = {}
+    body = {
+        'name': 'John Doe',
+        'picture': FileStub(),
+    }
+
+    expected_body = '--%(boundary)s\r\nContent-Disposition: form-data; ' \
+                    'name="picture"; filename="file"\r\nContent-Type: ' \
+                    'application/octet-stream\r\n\r\nFileStubContent\r\n' \
+                    '--%(boundary)s\r\nContent-Disposition: form-data; ' \
+                    'name="name"\r\n\r\nJohn+Doe\r\n' \
+                    '--%(boundary)s--\r\n' % {'boundary': BOUNDARY}
+    expected_header = {'content-length': '291',
+                       'Content-type': 'multipart/form-data; ' \
+                       'boundary=%s' % BOUNDARY}
+
+    http_mock.request('http://somewhere.com', 'POST',
+                      expected_body, expected_header). \
+        AndReturn(({}, ''))
+
+    mocker.ReplayAll()
+
+    b = Bolacha(klass_mock)
+    b.request('http://somewhere.com', 'POST', body=body, headers=request_headers)
     mocker.VerifyAll()
 

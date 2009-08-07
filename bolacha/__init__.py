@@ -55,6 +55,21 @@ class Bolacha(object):
         self.persistent = persistent
         self.headers = {}
 
+    def post(self, url, body=None, headers=None):
+        return self.request(url, 'POST', body=body, headers=headers)
+
+    def get(self, url, body=None, headers=None):
+        return self.request(url, 'GET', body=body, headers=headers)
+
+    def put(self, url, body=None, headers=None):
+        return self.request(url, 'PUT', body=body, headers=headers)
+
+    def delete(self, url, body=None, headers=None):
+        return self.request(url, 'DELETE', body=body, headers=headers)
+
+    def head(self, url, body=None, headers=None):
+        return self.request(url, 'HEAD', body=body, headers=headers)
+
     def request(self, url, method, body=None, headers=None):
         if not isinstance(url, basestring):
             raise TypeError, 'Bolacha.request, parameter url must be ' \
@@ -107,10 +122,6 @@ class Bolacha(object):
         if 'set-cookie' in rheaders:
             del rheaders['set-cookie']
 
-        if self.persistent:
-            if 'connection' in rheaders and rheaders['connection'] == 'close':
-                del rheaders['connection']
-
         if is_urlencoded and not 'Content-type' in rheaders:
             rheaders['Content-type'] = 'application/x-www-form-urlencoded'
         elif body_has_file:
@@ -119,7 +130,11 @@ class Bolacha(object):
 
         response, content = self.http.request(url, method, rbody, rheaders)
 
-        if 'set-cookie' in response:
+        if self.persistent and 'set-cookie' in response:
             self.headers['set-cookie'] = response['set-cookie']
+
+        if not self.persistent:
+            if 'connection' in response:
+                self.headers['connection'] = response['connection']
 
         return response, content
