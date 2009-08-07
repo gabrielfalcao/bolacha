@@ -51,7 +51,7 @@ class TestController:
         if not cherrypy.session.get('is_authenticated'):
             return 'You must log in to upload a file'
 
-        if file:
+        if file is not None:
             destination = "%s.tmp" % uuid4().hex
             print "Saving at " + destination
             content = file.file.read()
