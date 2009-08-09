@@ -1,0 +1,19 @@
+Source: python-bolacha
+Section: python
+Priority: optional
+Maintainer: Gabriel Falcão Gonçalves de Moura <gabriel@nacaolivre.org>
+Standards-Version: 3.8.2
+Build-Depends: debhelper (>= 7), python, cdbs, python-setuptools, python-support, python-cherrypy3, python-nose, python-mox, python-sphinx, python-httplib2
+Build-Depends-Indep: python-sphinx
+Homepage: http://github.com/gabrielfalcao/bolacha
+Vcs-Git: git://github.com/gabrielfalcao/bolacha.git
+Vcs-Browser: http://github.com/gabrielfalcao/bolacha/tree/master
+
+Package: python-bolacha
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-httplib2
+Description: Bolacha is a helper layer over httplib2
+ The goal of bolacha is providing a high level abstraction and
+ automatic handling of cookies and of posting multipart/form-data
+ data. Which means, deals with sessions of cookie-baed websites, and
+ can also make uploads.
