@@ -5,6 +5,7 @@ clean:
 	@find . -name '*.pyc' -delete
 	@echo "Cleaning up all temp files ..."
 	@find . -name '*.tmp' -delete
+	@rm -f log.txt
 	@echo "Cleaning up build files ..."
 	@rm -rf build
 
