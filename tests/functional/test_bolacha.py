@@ -53,3 +53,5 @@ def test_upload_after_login():
                            body={'file': gpl2})
 
     assert_equals(head['status'], '200')
+    gpl2.seek(0)
+    assert_equals(body, gpl2.read())

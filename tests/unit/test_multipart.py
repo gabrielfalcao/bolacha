@@ -29,8 +29,8 @@ def test_to_str_with_nonstring():
 def test_to_str_with_latin_unicode():
     wee = u'áéíóção@#'.decode('latin')
     got = multipart.to_str(wee)
-    assert_equals(got, u'%C3%83%C2%A1%C3%83%C2%A9%C3%83%C2%AD%' \
-                  'C3%83%C2%B3%C3%83%C2%A7%C3%83%C2%A3o%40%23')
+    assert_equals(got, '\xc3\x83\xc2\xa1\xc3\x83\xc2\xa9\xc3\x83\xc2\xad\xc3' \
+                  '\x83\xc2\xb3\xc3\x83\xc2\xa7\xc3\x83\xc2\xa3o@#')
 
 
 def test_guess_mime_guessed():
@@ -70,7 +70,7 @@ def test_encode_file():
                                                      'filename="file.pdf"',
                      'Content-Type: application/octet-stream',
                      '',
-                     'Gabriel+Falc%C3%83%C2%A3o']
+                     'Gabriel Falc\xc3\x83\xc2\xa3o']
 
     old_guess_type = multipart.guess_type
     multipart.guess_type = mocker.CreateMockAnything()
@@ -93,7 +93,7 @@ def test_encode_multipart_single_data():
     }
     got = multipart.encode_multipart('some-boundary', my_data)
     assert_equals(got, '--some-boundary\r\nContent-Disposition: ' \
-                       'form-data; name="name"\r\n\r\nGabriel+Falc%C3%A3o\r\n' \
+                       'form-data; name="name"\r\n\r\nGabriel Falc\xc3\xa3o\r\n' \
                        '--some-boundary--\r\n')
 
 def test_encode_multipart_without_files():

@@ -442,7 +442,7 @@ def test_request_with_file_will_upload_multipart():
                     'name="picture"; filename="file"\r\nContent-Type: ' \
                     'application/octet-stream\r\n\r\nFileStubContent\r\n' \
                     '--%(boundary)s\r\nContent-Disposition: form-data; ' \
-                    'name="name"\r\n\r\nJohn+Doe\r\n' \
+                    'name="name"\r\n\r\nJohn Doe\r\n' \
                     '--%(boundary)s--\r\n' % {'boundary': BOUNDARY}
     expected_header = {'content-length': '291',
                        'Content-type': 'multipart/form-data; ' \

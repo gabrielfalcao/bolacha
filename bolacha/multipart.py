@@ -20,7 +20,7 @@
 
 # some parts of the code below were took from Django Web Framework test client:
 # http://code.djangoproject.com/browser/django/tags/releases/1.1/django/test/client.py
-
+import types
 from uuid import uuid4
 from urllib import quote_plus, urlencode
 from glob import glob
@@ -32,12 +32,29 @@ BOUNDARY = uuid4().hex
 def is_file(obj):
     return hasattr(obj, 'read') and callable(obj.read)
 
-def to_str(s):
+def to_str(s, encoding='utf-8', strings_only=False, errors='strict'):
+    """ took from django smart_str """
+
+    if strings_only and isinstance(s, (types.NoneType, int)):
+        return s
+
     if not isinstance(s, basestring):
-        s = unicode(s)
-    if isinstance(s, unicode):
-        s = s.encode('utf-8')
-    return quote_plus(s)
+        try:
+            return str(s)
+        except UnicodeEncodeError:
+            if isinstance(s, Exception):
+                # An Exception subclass containing non-ASCII data that doesn't
+                # know how to print itself properly. We shouldn't raise a
+                # further exception.
+                return ' '.join([smart_str(arg, encoding, strings_only,
+                        errors) for arg in s])
+            return unicode(s).encode(encoding, errors)
+    elif isinstance(s, unicode):
+        return s.encode(encoding, errors)
+    elif s and encoding != 'utf-8':
+        return s.decode('utf-8', errors).encode(encoding, errors)
+    else:
+        return s
 
 def encode_multipart(boundary, data):
     lines = []
