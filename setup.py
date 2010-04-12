@@ -19,10 +19,9 @@
 # Boston, MA 02111-1307, USA.
 
 from setuptools import setup, find_packages
-from bolacha.meta import __version__
 
 setup(name='Bolacha',
-    version=__version__,
+    version='0.2.1',
     description='Bolacha is a simple http client that allows you ' \
         'testing http requests, handling cookies and file upload.',
     author=u'Gabriel Falcão',
