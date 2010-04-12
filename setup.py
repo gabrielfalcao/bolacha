@@ -30,4 +30,7 @@ setup(name='Bolacha',
     author=u'Gabriel Falcão',
     author_email='gabriel@nacaolivre.org',
     packages=find_packages(),
+    install_requires=[
+        "httplib2",
+    ],
 )
