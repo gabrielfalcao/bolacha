@@ -18,17 +18,5 @@
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-from setuptools import setup, find_packages
-from bolacha.meta import __version__
-
-setup(name='Bolacha',
-    version=__version__,
-    description='Bolacha is a simple http client that allows you ' \
-        'testing http requests, handling cookies and file upload.',
-    author=u'Gabriel Falcão',
-    author_email='gabriel@nacaolivre.org',
-    packages=find_packages(),
-    install_requires=[
-        "httplib2",
-    ],
-)
+__release__ = 'Chewy'
+__version__ = '0.2.1'

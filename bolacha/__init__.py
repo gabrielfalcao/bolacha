@@ -22,9 +22,8 @@ from bolacha.multipart import BOUNDARY
 from bolacha.multipart import encode_multipart
 from bolacha.multipart import urlencode
 from bolacha.multipart import is_file
-
-__version__ = '0.2.1'
-__release__ = 'Chewy'
+from bolacha.meta import __version__
+from bolacha.meta import __release__
 
 HTTP_METHODS = (
     'OPTIONS',
