@@ -23,7 +23,7 @@ from nose.tools import assert_equals
 from utils import assert_raises
 
 from bolacha import Bolacha, BOUNDARY
-from httplib2 import Http
+from bolacha.httplib2 import Http
 
 base_header = {'Content-type': 'application/x-www-form-urlencoded'}
 def prepare_header(h):
