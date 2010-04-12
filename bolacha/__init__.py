@@ -17,13 +17,15 @@
 # License along with this program; if not, write to the
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
-from httplib2 import Http as HTTPClass
+
+from bolacha.httplib2 import Http as HTTPClass
 from bolacha.multipart import BOUNDARY
 from bolacha.multipart import encode_multipart
 from bolacha.multipart import urlencode
 from bolacha.multipart import is_file
-from bolacha.meta import __version__
-from bolacha.meta import __release__
+
+__version__ = '0.3.0'
+__release__ = 'cream-n-cracker'
 
 HTTP_METHODS = (
     'OPTIONS',
