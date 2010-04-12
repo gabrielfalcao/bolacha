@@ -20,8 +20,8 @@
 
 from setuptools import setup, find_packages
 
-setup(name='Bolacha',
-    version='0.2.1',
+setup(name='bolacha',
+    version='0.2.2',
     description='Bolacha is a simple http client that allows you ' \
         'testing http requests, handling cookies and file upload.',
     author=u'Gabriel Falcão',
