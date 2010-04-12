@@ -28,6 +28,6 @@ setup(name='Bolacha',
     author_email='gabriel@nacaolivre.org',
     packages=find_packages(),
     install_requires=[
-        "httplib2",
+        "httplib2==0.4.0",
     ],
 )
