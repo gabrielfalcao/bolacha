@@ -30,7 +30,7 @@ from bolacha.multipart import encode_multipart
 from bolacha.multipart import urlencode
 from bolacha.multipart import is_file
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 __release__ = 'tasty'
 
 HTTP_METHODS = (
