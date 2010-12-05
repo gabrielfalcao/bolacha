@@ -182,6 +182,31 @@ def test_request_with_body_dict():
                         response_body))
     mocker.VerifyAll()
 
+def test_request_with_body_dict_with_multiple_value_key():
+    mocker = Mox()
+
+    klass_mock = mocker.CreateMockAnything()
+    http_mock = mocker.CreateMockAnything()
+    klass_mock().AndReturn(http_mock)
+
+    response_headers = {'header1': 'value of header'}
+    response_body = {'multiple': ('choice1', 'choice2')}
+
+    http_mock.request('http://somewhere.com', 'GET',
+                      'multiple=choice1&multiple=choice2',
+                      prepare_header(response_headers)). \
+        AndReturn((response_headers, response_body))
+
+    mocker.ReplayAll()
+
+    b = Bolacha(klass_mock)
+    got = b.request('http://somewhere.com', 'GET',
+                    response_body,
+                    prepare_header(response_headers))
+    assert_equals(got, (response_headers,
+                        response_body))
+    mocker.VerifyAll()
+
 def test_request_with_invalid_body():
     b = Bolacha()
     assert_raises(TypeError, b.request, 'http://gnu', 'GET',

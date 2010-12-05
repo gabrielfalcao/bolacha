@@ -107,7 +107,7 @@ class Bolacha(object):
             if body_has_file:
                 rbody = encode_multipart(BOUNDARY, body)
             else:
-                rbody = urlencode(body)
+                rbody = urlencode(body, doseq=True)
                 is_urlencoded = True
         else:
             rbody = body
