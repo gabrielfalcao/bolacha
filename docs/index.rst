@@ -59,3 +59,13 @@ Logging in a website and making a upload::
      >>>
      >>> b.post('http://my-website.com/login', {'username': 'foo', 'password': 'bar'})
      >>> b.post('http://my-website.com/upload', {'profile_pic': open('/home/user/me.jpg')})
+
+If you need to send multiple values under the same name (like select
+multiple in html), just pass a list or tuple of values::
+
+     >>> from bolacha import Bolacha
+     >>> b = Bolacha()
+     >>>
+     >>> data = {'pictures': (open('/home/user/01.jpg'),
+     ...                      open('/home/user/02.jpg'))}
+     >>> b.post('http://my-website.com/upload', data)
