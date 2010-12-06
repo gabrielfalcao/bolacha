@@ -31,8 +31,8 @@ from bolacha.multipart import urlencode
 from bolacha.multipart import is_file
 from bolacha.multipart import expand_items
 
-__version__ = '0.4.0'
-__release__ = 'tasty'
+__version__ = '0.6.0'
+__release__ = 'gingerbread man'
 
 HTTP_METHODS = (
     'OPTIONS',
