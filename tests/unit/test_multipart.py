@@ -155,3 +155,16 @@ def test_is_file_attr_read_not_callable():
         read = 'not a callable'
 
     assert not multipart.is_file(FakeFile())
+
+
+def test_expand_items():
+    d = {
+        'key1': ('value1-1', 'value1-2'),
+        'key2': 'value2',
+    }
+    items = multipart.expand_items(d)
+
+    assert ('key1', 'value1-1') in items
+    assert ('key1', 'value1-2') in items
+    assert ('key2', 'value2') in items
+

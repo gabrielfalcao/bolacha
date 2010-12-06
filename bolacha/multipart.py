@@ -60,10 +60,23 @@ def to_str(s, encoding='utf-8', strings_only=False, errors='strict'):
     else:
         return s
 
+def expand_items(dictionary):
+    """
+    Given a dict like {'key': ('value1', 'value2')} returns
+    a list like [('key','value1'), ('key', 'value2')]
+    """
+    items = []
+    for key, value in dictionary.items():
+        if isinstance(value, (list, tuple)):
+            items.extend([(key, item) for item in value])
+        else:
+            items.append((key, value))
+    return items
+
 def encode_multipart(boundary, data):
     lines = []
 
-    for key, value in data.items():
+    for key, value in expand_items(data):
         if is_file(value):
             lines.extend(encode_file(boundary, key, value))
         else:

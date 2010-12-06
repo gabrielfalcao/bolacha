@@ -483,3 +483,43 @@ def test_request_with_file_will_upload_multipart():
     b.request('http://somewhere.com', 'POST', body=body, headers=request_headers)
     mocker.VerifyAll()
 
+def test_request_with_multiple_files_with_same_name_will_upload_multipart():
+    mocker = Mox()
+
+    klass_mock = mocker.CreateMockAnything()
+    http_mock = mocker.CreateMockAnything()
+    klass_mock().AndReturn(http_mock)
+
+    class FileStub(object):
+        name = '/path/to/file'
+        def __init__(self, num):
+            self.num = num
+        def read(self):
+            return 'FileStubContent-%s' % self.num
+
+    request_headers = {}
+    body = {
+        'pictures': (FileStub(1), FileStub(2)),
+    }
+
+    expected_body = '--%(boundary)s\r\nContent-Disposition: form-data; ' \
+                    'name="pictures"; filename="file"\r\nContent-Type: ' \
+                    'application/octet-stream\r\n\r\nFileStubContent-1\r\n' \
+                    '--%(boundary)s\r\nContent-Disposition: form-data; ' \
+                    'name="pictures"; filename="file"\r\nContent-Type: ' \
+                    'application/octet-stream\r\n\r\nFileStubContent-2\r\n' \
+                    '--%(boundary)s--\r\n' \
+                    % {'boundary': BOUNDARY}
+    expected_header = {'content-length': '364',
+                       'Content-type': 'multipart/form-data; ' \
+                       'boundary=%s' % BOUNDARY}
+
+    http_mock.request('http://somewhere.com', 'POST',
+                      expected_body, expected_header). \
+        AndReturn(({}, ''))
+
+    mocker.ReplayAll()
+
+    b = Bolacha(klass_mock)
+    b.request('http://somewhere.com', 'POST', body=body, headers=request_headers)
+    mocker.VerifyAll()

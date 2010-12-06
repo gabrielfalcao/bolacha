@@ -29,6 +29,7 @@ from bolacha.multipart import BOUNDARY
 from bolacha.multipart import encode_multipart
 from bolacha.multipart import urlencode
 from bolacha.multipart import is_file
+from bolacha.multipart import expand_items
 
 __version__ = '0.4.0'
 __release__ = 'tasty'
@@ -100,8 +101,9 @@ class Bolacha(object):
 
         is_urlencoded = False
 
-        body_has_file = isinstance(body, dict) and any([is_file(fobj)
-                                                        for fobj in body.values()])
+        body_has_file = isinstance(body, dict) and any([is_file(value)
+                                                       for key,value
+                                                       in expand_items(body)])
 
         if isinstance(body, dict):
             if body_has_file:
