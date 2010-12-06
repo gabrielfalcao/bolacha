@@ -3,8 +3,9 @@
 build
 .ropeproject
 docs/_build
-Sponge.egg-info
+Bolacha.egg-info
 dist
 .coverage
 *.tmp
 log.txt
+bolacha-*.tar.gz
